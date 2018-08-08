@@ -68,11 +68,16 @@ def compile_model(network, nb_classes, input_shape):
         a compiled network.
 
     """
-    # Get our network parameters.
-    nb_layers = network['nb_layers']
-    nb_neurons = network['nb_neurons']
-    activation = network['activation']
-    optimizer = network['optimizer']
+    # Get our network parameters.    
+    filter_size = network['filter_size']
+    batch_size = network['batch_size']
+    l1_penalty = network['l1_penalty']
+    l2_penalty = network['l2_penalty']
+    learning_rate = network['learning_rate']
+    conv_layer_count = network['conv_layer_count']
+    filters_per_conv = network['filters_per_conv']
+    hidden_layer_count = network['hidden_layer_count']
+    units_per_hidden = network['units_per_hidden']
 
     model = Sequential()
 
