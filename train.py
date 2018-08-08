@@ -7,18 +7,21 @@ Based on:
 """
 from keras.datasets import mnist, cifar10
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Conv2D, MaxPooling2D
 from keras.utils.np_utils import to_categorical
 from keras.callbacks import EarlyStopping
+from keras.optimizers import SGD
+from keras.regularizers import l1_l2
 
 # Helper: Early stopping.
 early_stopper = EarlyStopping(patience=5)
 
-def get_cifar10():
+def get_cifar10(bs):
     """Retrieve the CIFAR dataset and process the data."""
     # Set defaults.
     nb_classes = 10
-    batch_size = 64
+    batch_size = bs
     input_shape = (3072,)
 
     # Get the data.
@@ -36,11 +39,11 @@ def get_cifar10():
 
     return (nb_classes, batch_size, input_shape, x_train, x_test, y_train, y_test)
 
-def get_mnist():
+def get_mnist(bs):
     """Retrieve the MNIST dataset and process the data."""
     # Set defaults.
     nb_classes = 10
-    batch_size = 128
+    batch_size = bs
     input_shape = (784,)
 
     # Get the data.
@@ -70,7 +73,6 @@ def compile_model(network, nb_classes, input_shape):
     """
     # Get our network parameters.    
     filter_size = network['filter_size']
-    batch_size = network['batch_size']
     l1_penalty = network['l1_penalty']
     l2_penalty = network['l2_penalty']
     learning_rate = network['learning_rate']
@@ -82,20 +84,25 @@ def compile_model(network, nb_classes, input_shape):
     model = Sequential()
 
     # Add each layer.
-    for i in range(nb_layers):
+    # Arrange conv layers first.
+    for i in range(conv_layer_count):
 
         # Need input shape for first layer.
         if i == 0:
-            model.add(Dense(nb_neurons, activation=activation, input_shape=input_shape))
+            model.add(Conv2D(filters_per_conv, filter_size, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
         else:
-            model.add(Dense(nb_neurons, activation=activation))
+            model.add(Conv2D(filters_per_conv, filter_size, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
 
-        model.add(Dropout(0.2))  # hard-coded dropout
+        model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
+    
+    # Then get hidden layers.
+    for i in range(hidden_layer_count):
+        model.add(Dense(units_per_hidden, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
 
     # Output layer.
     model.add(Dense(nb_classes, activation='softmax'))
 
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer,
+    model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=learning_rate, momentum=0.9),
                   metrics=['accuracy'])
 
     return model
@@ -110,16 +117,16 @@ def train_and_score(network, dataset):
     """
     if dataset == 'cifar10':
         nb_classes, batch_size, input_shape, x_train, \
-            x_test, y_train, y_test = get_cifar10()
+            x_test, y_train, y_test = get_cifar10(network['batch_size'])
     elif dataset == 'mnist':
         nb_classes, batch_size, input_shape, x_train, \
-            x_test, y_train, y_test = get_mnist()
+            x_test, y_train, y_test = get_mnist(network['batch_size'])
 
     model = compile_model(network, nb_classes, input_shape)
 
     model.fit(x_train, y_train,
               batch_size=batch_size,
-              epochs=10000,  # using early stopping, so no real limit
+              epochs=50,  # per paper
               verbose=0,
               validation_data=(x_test, y_test),
               callbacks=[early_stopper])
