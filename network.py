@@ -6,7 +6,7 @@ from train import train_and_score
 class Network():
     """Represent a network and let us operate on it.
 
-    Currently only works for an MLP.
+    Modified to work for CNN.
     """
 
     def __init__(self, nn_param_choices=None):
@@ -14,14 +14,19 @@ class Network():
 
         Args:
             nn_param_choices (dict): Parameters for the network, includes:
-                nb_neurons (list): [64, 128, 256]
-                nb_layers (list): [1, 2, 3, 4]
-                activation (list): ['relu', 'elu']
-                optimizer (list): ['rmsprop', 'adam']
+                filter_size (list): [(3,3), (5,5), (7,7)],
+                batch_size (list): [10, 20, 30, 40, 50],
+                l1_penalty (list): [0, 1e-1, 1e-2, 1e-3, 1e-4],
+                l2_penalty (list): [0, 1e-1, 1e-2, 1e-3, 1e-4],
+                learning_rate (list): [1e-1, 1e-2, 1e-3],
+                conv_layer_count (list): [1,2],
+                filters_per_conv (list): [x for x in range(10,51)],
+                hidden_layer_count (list): [1,2,3],
+                units_per_hidden (list): [x for x in range(50,501)]
         """
         self.accuracy = 0.
         self.nn_param_choices = nn_param_choices
-        self.network = {}  # (dic): represents MLP network parameters
+        self.network = {}  # (dic): represents CNN network parameters
 
     def create_random(self):
         """Create a random network."""
