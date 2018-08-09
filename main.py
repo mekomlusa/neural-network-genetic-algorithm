@@ -103,9 +103,9 @@ def main():
         'l2_penalty':[0, 1e-1, 1e-2, 1e-3, 1e-4],
         'learning_rate':[1e-1, 1e-2, 1e-3],
         'conv_layer_count':[1,2],
-        'filters_per_conv':[x for x in range(10,51)],
+        'filters_per_conv':[x for x in range(10,60,10)],
         'hidden_layer_count':[1,2,3],
-        'units_per_hidden':[x for x in range(50,501)],
+        'units_per_hidden':[x for x in range(50,550,50)],
     }
 
     logging.info("***Evolving %d generations with population %d***" %

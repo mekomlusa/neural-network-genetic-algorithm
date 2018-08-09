@@ -85,19 +85,23 @@ def compile_model(network, nb_classes, input_shape):
 
     # Add each layer.
     # Arrange conv layers first.
-    for i in range(conv_layer_count):
-
-        # Need input shape for first layer.
-        if i == 0:
-            model.add(Conv2D(filters_per_conv, filter_size, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
-        else:
-            model.add(Conv2D(filters_per_conv, filter_size, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
-
-        model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
+    if conv_layer_count > 0:
+        for _ in range(conv_layer_count):
+            # Need input shape for first layer.
+            if len(model.layers) == 0:
+                model.add(Conv2D(filters_per_conv, filter_size, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
+            else:
+                model.add(Conv2D(filters_per_conv, filter_size, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
+    
+            model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
     
     # Then get hidden layers.
-    for i in range(hidden_layer_count):
-        model.add(Dense(units_per_hidden, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
+    if hidden_layer_count > 0:
+        for _ in range(hidden_layer_count):
+            if len(model.layers) == 0:
+                model.add(Dense(units_per_hidden, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
+            else:
+                model.add(Dense(units_per_hidden, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
 
     # Output layer.
     model.add(Dense(nb_classes, activation='softmax'))
