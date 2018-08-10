@@ -10,6 +10,7 @@ from operator import add
 import random
 from network import Network
 import operator
+import collections
 
 class Optimizer():
     """Class that implements genetic algorithm for CNN optimization."""
@@ -32,6 +33,16 @@ class Optimizer():
         self.random_select = random_select
         self.retain = retain
         self.nn_param_choices = nn_param_choices
+		
+	def merge_two_dicts(x, y):
+		"""Helper method.
+		
+		Given two dicts, merge them into a new dict as a shallow copy.
+		
+		"""
+		z = x.copy()
+		z.update(y)
+		return z
 
     def create_population(self, count):
         """Create a population of random networks.
@@ -85,68 +96,33 @@ class Optimizer():
 
         """
         children = []
-        
-        all_param = self.nn_param_choices
-        del all_param['conv_layer_count']
-        del all_param['filter_size']
-        del all_param['filters_per_conv']
-        del all_param['hidden_layer_count']
-        del all_param['units_per_hidden']
-        
-        for i in range(2):
+		
+		mother = collections.OrderedDict(mother)
+		father = collections.OrderedDict(father)
+		
+		pos = int(0.5*len(mother))
+		mfirst = {k: mother[k] for k in list(mother)[:pos]}
+		mlast = {k: mother[k] for k in list(mother)[pos:]}
+		ffirst = {k: father[k] for k in list(father)[:pos]}
+		flast = {k: father[k] for k in list(father)[pos:]}
+		child1 = merge_two_dicts(mfirst,flast)
+		child2 = merge_two_dicts(ffirst,mlast)
+		
+		# Now create network objects.
+		child1n = Network(self.nn_param_choices)
+		child1n.create_set(child1)
+		
+		child2n = Network(self.nn_param_choices)
+		child2n.create_set(child2)
 
-            child = {}
-            
-            # Recombine some parameters, as specified in the paper.
-            # Only decide what conv and hidden layer parameters are exchanged at the very first run
-            if i == 0:
-                default_cov_list = ['m','f']
-                default_hid_list = ['m','f']
-                cov_choice = random.choice(['m','f'])
-                hid_choice = random.choice(['m','f'])
-            
-            if cov_choice == 'm':
-                # covlutional layers will choose from the mother network
-                child['conv_layer_count'] = mother.network['conv_layer_count']
-                child['filter_size'] = mother.network['filter_size']
-                child['filters_per_conv'] = mother.network['filters_per_conv']
-            else:
-                # covlutional layers will choose from the father network
-                child['conv_layer_count'] = father.network['conv_layer_count']
-                child['filter_size'] = father.network['filter_size']
-                child['filters_per_conv'] = father.network['filters_per_conv']
-                
-            if hid_choice == 'm':
-                # hidden layers will choose from the mother network
-                child['hidden_layer_count'] = mother.network['hidden_layer_count']
-                child['units_per_hidden'] = mother.network['units_per_hidden']
-            else:
-                # hidden layers will choose from the father network
-                child['hidden_layer_count'] = father.network['hidden_layer_count']
-                child['units_per_hidden'] = father.network['units_per_hidden']
+		# Randomly mutate some of the children.
+		if self.mutate_chance > random.random():
+			child1n = self.mutate(child1n)
+		if self.mutate_chance > random.random():
+			child2n = self.mutate(child2n)
 
-            # Loop through the parameters and pick params for the kid.
-            for param in all_param:
-                child[param] = random.choice(
-                    [mother.network[param], father.network[param]]
-                )
-
-            # Now create a network object.
-            network = Network(self.nn_param_choices)
-            network.create_set(child)
-
-            # Randomly mutate some of the children.
-            if self.mutate_chance > random.random():
-                network = self.mutate(network)
-
-            children.append(network)
-            
-            # Switch the choice so that it works for the next child.
-            if i == 0:
-                default_cov_list.remove(cov_choice)
-                default_hid_list.remove(hid_choice)
-                cov_choice = default_cov_list[0]
-                hid_choice = default_hid_list[0]
+		children.append(child1n)
+		children.append(child2n)
 
         return children
 
