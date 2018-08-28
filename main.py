@@ -2,6 +2,9 @@
 import logging
 from optimizer import Optimizer
 from tqdm import tqdm
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 # Setup logging.
 logging.basicConfig(
@@ -92,9 +95,9 @@ def print_networks(networks):
 
 def main():
     """Evolve a network."""
-    generations = 30  # Number of times to evole the population.
-    population = 50  # Number of networks in each generation.
-    dataset = 'mnist'
+    generations = 5  # Number of times to evole the population.
+    population = 10  # Number of networks in each generation.
+    dataset = 'cifar10'
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],

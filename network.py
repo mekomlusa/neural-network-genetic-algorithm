@@ -56,3 +56,7 @@ class Network():
         """Print out a network."""
         logging.info(self.network)
         logging.info("Network accuracy: %.2f%%" % (self.accuracy * 100))
+	
+    def get_parameters(self):
+        # Returns parameters of choice.
+        return self.nn_param_choices

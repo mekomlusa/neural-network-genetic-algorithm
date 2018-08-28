@@ -12,6 +12,16 @@ from network import Network
 import operator
 import collections
 
+def merge_two_dicts(x, y):
+	"""Helper method.
+			
+	Given two dicts, merge them into a new dict as a shallow copy.
+			
+	"""
+	z = x.copy()
+	z.update(y)
+	return z
+
 class Optimizer():
     """Class that implements genetic algorithm for CNN optimization."""
 
@@ -33,16 +43,6 @@ class Optimizer():
         self.random_select = random_select
         self.retain = retain
         self.nn_param_choices = nn_param_choices
-		
-	def merge_two_dicts(x, y):
-		"""Helper method.
-		
-		Given two dicts, merge them into a new dict as a shallow copy.
-		
-		"""
-		z = x.copy()
-		z.update(y)
-		return z
 
     def create_population(self, count):
         """Create a population of random networks.
@@ -96,33 +96,33 @@ class Optimizer():
 
         """
         children = []
-		
-		mother = collections.OrderedDict(mother)
-		father = collections.OrderedDict(father)
-		
-		pos = int(0.5*len(mother))
-		mfirst = {k: mother[k] for k in list(mother)[:pos]}
-		mlast = {k: mother[k] for k in list(mother)[pos:]}
-		ffirst = {k: father[k] for k in list(father)[:pos]}
-		flast = {k: father[k] for k in list(father)[pos:]}
-		child1 = merge_two_dicts(mfirst,flast)
-		child2 = merge_two_dicts(ffirst,mlast)
-		
-		# Now create network objects.
-		child1n = Network(self.nn_param_choices)
-		child1n.create_set(child1)
-		
-		child2n = Network(self.nn_param_choices)
-		child2n.create_set(child2)
+                
+        mother = collections.OrderedDict(mother.get_parameters())
+        father = collections.OrderedDict(father.get_parameters())
+                
+        pos = int(0.5*len(mother))
+        mfirst = {k: mother[k] for k in list(mother)[:pos]}
+        mlast = {k: mother[k] for k in list(mother)[pos:]}
+        ffirst = {k: father[k] for k in list(father)[:pos]}
+        flast = {k: father[k] for k in list(father)[pos:]}
+        child1 = merge_two_dicts(mfirst,flast)
+        child2 = merge_two_dicts(ffirst,mlast)
+                
+        # Now create network objects.
+        child1n = Network(self.nn_param_choices)
+        child1n.create_set(child1)
+                
+        child2n = Network(self.nn_param_choices)
+        child2n.create_set(child2)
 
-		# Randomly mutate some of the children.
-		if self.mutate_chance > random.random():
-			child1n = self.mutate(child1n)
-		if self.mutate_chance > random.random():
-			child2n = self.mutate(child2n)
+        # Randomly mutate some of the children.
+        if self.mutate_chance > random.random():
+            child1n = self.mutate(child1n)
+        if self.mutate_chance > random.random():
+            child2n = self.mutate(child2n)
 
-		children.append(child1n)
-		children.append(child2n)
+        children.append(child1n)
+        children.append(child2n)
 
         return children
 

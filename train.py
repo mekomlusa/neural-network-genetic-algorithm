@@ -9,7 +9,8 @@ from keras.datasets import mnist, cifar10
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
-from keras.utils.np_utils import to_categorical
+#from keras.utils.np_utils import to_categorical
+from keras.utils import to_categorical
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from keras.regularizers import l1_l2
@@ -22,17 +23,15 @@ def get_cifar10(bs):
     # Set defaults.
     nb_classes = 10
     batch_size = bs
-    input_shape = (3072,)
 
     # Get the data.
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-    x_train = x_train.reshape(50000, 3072)
-    x_test = x_test.reshape(10000, 3072)
+    input_shape = x_train.shape[1:]
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     x_train /= 255
     x_test /= 255
-
+        
     # convert class vectors to binary class matrices
     y_train = to_categorical(y_train, nb_classes)
     y_test = to_categorical(y_test, nb_classes)
@@ -44,12 +43,10 @@ def get_mnist(bs):
     # Set defaults.
     nb_classes = 10
     batch_size = bs
-    input_shape = (784,)
 
     # Get the data.
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train = x_train.reshape(60000, 784)
-    x_test = x_test.reshape(10000, 784)
+    input_shape = x_train.shape[1:]
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     x_train /= 255
@@ -90,10 +87,12 @@ def compile_model(network, nb_classes, input_shape):
             # Need input shape for first layer.
             if len(model.layers) == 0:
                 model.add(Conv2D(filters_per_conv, filter_size, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
-            else:
+                model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
+            elif model.layers[-1].output_shape[1] / 2 > 0:
                 model.add(Conv2D(filters_per_conv, filter_size, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
-    
-            model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
+                model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
+                        
+        model.add(Flatten())
     
     # Then get hidden layers.
     if hidden_layer_count > 0:
@@ -105,6 +104,7 @@ def compile_model(network, nb_classes, input_shape):
 
     # Output layer.
     model.add(Dense(nb_classes, activation='softmax'))
+    #print(model.summary())
 
     model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=learning_rate, momentum=0.9),
                   metrics=['accuracy'])
