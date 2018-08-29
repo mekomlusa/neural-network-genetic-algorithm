@@ -59,4 +59,4 @@ class Network():
 	
     def get_parameters(self):
         # Returns parameters of choice.
-        return self.nn_param_choices
+        return self.network

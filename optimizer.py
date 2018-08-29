@@ -145,7 +145,7 @@ class Optimizer():
         selected_layers = random.choice(['conv_layer_count','hidden_layer_count'])
         if layer_inc_chance >= 0.5:
             network.network[selected_layers] += 1
-        else:
+        elif network.network[selected_layers] > 0:
             network.network[selected_layers] -= 1
             
         rate_chance = random.random()
@@ -258,19 +258,19 @@ class Optimizer():
 
             # Get a random mom and dad.
             if random.random() <= 0.75:
-                male = random.randint(0, cutoff)
+                male_index = random.randint(0, cutoff)
             else:
-                male = random.randint(cutoff+1, len(graded)-1)
+                male_index = random.randint(cutoff+1, len(graded)-1)
                 
             if random.random() <= 0.75:
-                female = random.randint(0, cutoff)
+                female_index = random.randint(0, cutoff)
             else:
-                female = random.randint(cutoff+1, len(graded)-1)
+                female_index = random.randint(cutoff+1, len(graded)-1)
 
             # Assuming they aren't the same network...
-            if male != female:
-                male = graded[male]
-                female = graded[female]
+            if male_index != female_index:
+                male = graded[male_index]
+                female = graded[female_index]
 
                 # Breed them.
                 babies = self.breed(male, female)
