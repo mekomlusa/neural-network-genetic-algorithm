@@ -1,21 +1,18 @@
 # Evolve a neural network with a genetic algorithm
+## Modified by [@mekomlusa](https://github.com/mekomlusa)
 
-This is an example of how we can use a genetic algorithm in an attempt to find the optimal network parameters for classification tasks.
+This is an example of how we can use a genetic algorithm in an attempt to find the optimal network parameters for classification tasks. It's adapted from [harvitronix](https://github.com/harvitronix/neural-network-genetic-algorithm)'s work, with the intention of realizing [Hinz et al.'s paper](http://jmlr.csail.mit.edu/manudb/autoreg/reviewer/eFOdi7rU0d4NIc9kqErL/getfile2/8636/manuscript/JMLR-17-098-1.pdf).
 
-It's currently limited to only MLPs (ie. fully connected networks) and uses the Keras library to build, train and validate.
+It's currently limited to only simple CNNs and uses the Keras library to build, train and validate.
 
-On the easy MNIST dataset, we are able to quickly find a network that reaches > 98% accuracy. On the more challenging CIFAR10 dataset, we get to 56% after 10 generations (with population 20).
+Test results will be reported soon. Right now, the algorithm is able to achieve 67.88% accuracy on the CIFAR10 dataset, with 5 iterations and 10 networks each.
 
-For more, see this blog post: 
+For more, see this blog post:
 https://medium.com/@harvitronix/lets-evolve-a-neural-network-with-a-genetic-algorithm-code-included-8809bece164
 
 For a more robust implementation that you can use in your projects, take a look at [Jan Liphardt's implementation, DeepEvolve](https://github.com/jliphard/DeepEvolve).
 
 ## To run
-
-To run the brute force algorithm:
-
-```python3 brute.py```
 
 To run the genetic algorithm:
 

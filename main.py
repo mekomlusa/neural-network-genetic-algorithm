@@ -77,9 +77,9 @@ def generate(generations, population, nn_param_choices, dataset):
             # Do the evolution.
             networks = optimizer.evolve(networks)
             
-        pp = pprint.PrettyPrinter(indent=4)
-        for network in networks:
-            pp.pprint(network.network)
+        #pp = pprint.PrettyPrinter(indent=4)
+        #for network in networks:
+        #    pp.pprint(network.network)
 
     # Sort our final population.
     networks = sorted(networks, key=lambda x: x.accuracy, reverse=True)
