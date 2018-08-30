@@ -3,6 +3,7 @@ import logging
 from optimizer import Optimizer
 from tqdm import tqdm
 import os
+import pprint
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
@@ -75,6 +76,10 @@ def generate(generations, population, nn_param_choices, dataset):
         if i != generations - 1:
             # Do the evolution.
             networks = optimizer.evolve(networks)
+            
+        pp = pprint.PrettyPrinter(indent=4)
+        for network in networks:
+            pp.pprint(network.network)
 
     # Sort our final population.
     networks = sorted(networks, key=lambda x: x.accuracy, reverse=True)

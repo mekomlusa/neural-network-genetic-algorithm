@@ -96,17 +96,20 @@ class Optimizer():
 
         """
         children = []
+        child1 = {}
+        child2 = {}
                 
-        mother = collections.OrderedDict(mother.get_parameters())
-        father = collections.OrderedDict(father.get_parameters())
+        ordered_nn_param_choices = collections.OrderedDict(self.nn_param_choices)
                 
         pos = int(0.5*len(mother))
-        mfirst = {k: mother[k] for k in list(mother)[:pos]}
-        mlast = {k: mother[k] for k in list(mother)[pos:]}
-        ffirst = {k: father[k] for k in list(father)[:pos]}
-        flast = {k: father[k] for k in list(father)[pos:]}
-        child1 = merge_two_dicts(mfirst,flast)
-        child2 = merge_two_dicts(ffirst,mlast)
+        for i in range(len(ordered_nn_param_choices)):
+            param = list(ordered_nn_param_choices.items())[i][0]
+            if i < pos:
+                child1[param] = mother[param]
+                child2[param] = father[param]
+            else:
+                child1[param] = father[param]
+                child2[param] = mother[param]
                 
         # Now create network objects.
         child1n = Network(self.nn_param_choices)
@@ -269,8 +272,8 @@ class Optimizer():
 
             # Assuming they aren't the same network...
             if male_index != female_index:
-                male = graded[male_index]
-                female = graded[female_index]
+                male = graded[male_index].get_parameters()
+                female = graded[female_index].get_parameters()
 
                 # Breed them.
                 babies = self.breed(male, female)
