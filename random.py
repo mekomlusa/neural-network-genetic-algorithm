@@ -8,7 +8,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
     level=logging.DEBUG,
-    filename='brute-log.txt'
+    filename='random-log.txt'
 )
 
 def train_networks(networks, dataset):
@@ -43,7 +43,7 @@ def print_networks(networks):
         network.print_network()
 
 def generate_network_list(nn_param_choices):
-    """Generate a list of all possible networks.
+    """Generate a list of random networks.
 
     Args:
         nn_param_choices (dict): The parameter choices
@@ -53,26 +53,17 @@ def generate_network_list(nn_param_choices):
 
     """
     networks = []
+    
+    for i in range(10):
+        # Creating 10 random networks.
+        for key in nn_param_choices:
+            network[key] = random.choice(nn_param_choices[key])
+            
+        # Instantiate a network object with set parameters.
+        network_obj = Network()
+        network_obj.create_set(network)
 
-    # This is silly.
-    for nbn in nn_param_choices['nb_neurons']:
-        for nbl in nn_param_choices['nb_layers']:
-            for a in nn_param_choices['activation']:
-                for o in nn_param_choices['optimizer']:
-
-                    # Set the parameters.
-                    network = {
-                        'nb_neurons': nbn,
-                        'nb_layers': nbl,
-                        'activation': a,
-                        'optimizer': o,
-                    }
-
-                    # Instantiate a network object with set parameters.
-                    network_obj = Network()
-                    network_obj.create_set(network)
-
-                    networks.append(network_obj)
+        networks.append(network_obj)
 
     return networks
 
@@ -81,14 +72,18 @@ def main():
     dataset = 'cifar10'
 
     nn_param_choices = {
-        'nb_neurons': [64, 128, 256, 512, 768, 1024],
-        'nb_layers': [1, 2, 3, 4],
-        'activation': ['relu', 'elu', 'tanh', 'sigmoid'],
-        'optimizer': ['rmsprop', 'adam', 'sgd', 'adagrad',
-                      'adadelta', 'adamax', 'nadam'],
+        'batch_size':[10, 20, 30, 40, 50],
+		'hidden_layer_count':[1,2,3],
+        'units_per_hidden':[x for x in range(50,550,50)],
+        'l1_penalty':[0, 1e-1, 1e-2, 1e-3, 1e-4],
+        'l2_penalty':[0, 1e-1, 1e-2, 1e-3, 1e-4],
+        'learning_rate':[1e-1, 1e-2, 1e-3],
+        'conv_layer_count':[1,2],
+        'filters_per_conv':[x for x in range(10,60,10)],
+		'filter_size':[(3,3), (5,5), (7,7)],
     }
 
-    logging.info("***Brute forcing networks***")
+    logging.info("***Random sampling networks***")
 
     networks = generate_network_list(nn_param_choices)
 
