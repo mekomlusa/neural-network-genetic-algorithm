@@ -2,6 +2,10 @@
 import logging
 from network import Network
 from tqdm import tqdm
+import random
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 # Setup logging.
 logging.basicConfig(
@@ -24,8 +28,8 @@ def greedy(network, dataset, nn_param_choices, tolerance):
         best_network (Network): The network with the best performance.
 
     """
-    evolve_counter - 0
-    best_network - Network()
+    evolve_counter = 0
+    best_network = Network()
     best_acc = 0
     elapsed_time = 0
     
@@ -48,11 +52,13 @@ def greedy(network, dataset, nn_param_choices, tolerance):
         # Randomly change one parameter at a time.
         key = random.choice(list(nn_param_choices.keys()))
         val = random.choice(nn_param_choices[key])
-        while val == network[key]:
+        while val == network.network[key]:
             val = random.choice(nn_param_choices[key])
-        network[key] = val
+        network.network[key] = val
         network.train(dataset)
         network.print_network()
+        logging.info('\n')
+        
         elapsed_time += 1
 
     return best_network
@@ -76,14 +82,15 @@ def main():
     logging.info("***Greedy approach***")
     
     # First, get a random configuration.
+    seed_param = {}
     for key in nn_param_choices:
         seed_param[key] = random.choice(nn_param_choices[key])
         
     seed = Network()
     seed.create_set(seed_param)
     
-    # setting the tolerance = 5; if there's no improvement on accuracy after 5 iterations, assumed that we've reached the local maximum.
-    best_network = greedy(seed, dataset, nn_param_choices, 5)
+    # setting the tolerance = 10; if there's no improvement on accuracy after 10 iterations, assumed that we've reached the local maximum.
+    best_network = greedy(seed, dataset, nn_param_choices, 10)
 
 if __name__ == '__main__':
     main()

@@ -2,6 +2,10 @@
 import logging
 from network import Network
 from tqdm import tqdm
+import random
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 # Setup logging.
 logging.basicConfig(
