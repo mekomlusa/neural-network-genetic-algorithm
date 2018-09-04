@@ -33,7 +33,10 @@ def train_networks(networks, dataset):
     networks = sorted(networks, key=lambda x: x.accuracy, reverse=True)
 
     # Print out the top 5 networks.
-    print_networks(networks[:5])
+    # print_networks(networks[:5])
+    
+    # Also return the best 5 networks.
+    return networks[:5]
 
 def print_networks(networks):
     """Print a list of networks.
@@ -46,11 +49,12 @@ def print_networks(networks):
     for network in networks:
         network.print_network()
 
-def generate_network_list(nn_param_choices):
+def generate_network_list(nn_param_choices, population):
     """Generate a list of random networks.
 
     Args:
         nn_param_choices (dict): The parameter choices
+        population (int): number of CNNs to generate
 
     Returns:
         networks (list): A list of network objects
@@ -58,8 +62,7 @@ def generate_network_list(nn_param_choices):
     """
     networks = []
     
-    for i in range(10):
-        # Creating 10 random networks.
+    for i in range(population):
         for key in nn_param_choices:
             network[key] = random.choice(nn_param_choices[key])
             
@@ -74,6 +77,9 @@ def generate_network_list(nn_param_choices):
 def main():
     """Brute force test every network."""
     dataset = 'cifar10'
+    generations = 10  # Number of iterations
+    population = 30  # Number of networks in each generation.
+    selected_networks = []
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],
@@ -88,10 +94,17 @@ def main():
     }
 
     logging.info("***Random sampling networks***")
-
-    networks = generate_network_list(nn_param_choices)
-
-    train_networks(networks, dataset)
+    
+    for i in range(generations):
+        logging.info("***Doing generation %d of %d***" %
+                     (i + 1, generations))
+        networks = generate_network_list(nn_param_choices, population)
+        selected_networks.extend(train_networks(networks, dataset))
+    
+    selected_networks = sorted(selected_networks, key=lambda x: x.accuracy, reverse=True)
+    
+    # Print out the top 5 networks.
+    print_networks(selected_networks[:5])
 
 if __name__ == '__main__':
     main()

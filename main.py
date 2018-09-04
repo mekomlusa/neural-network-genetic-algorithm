@@ -100,8 +100,8 @@ def print_networks(networks):
 
 def main():
     """Evolve a network."""
-    generations = 5  # Number of times to evole the population.
-    population = 10  # Number of networks in each generation.
+    generations = 10  # Number of times to evole the population.
+    population = 30  # Number of networks in each generation.
     dataset = 'cifar10'
 
     nn_param_choices = {

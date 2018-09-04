@@ -56,8 +56,6 @@ def greedy(network, dataset, nn_param_choices, tolerance):
             val = random.choice(nn_param_choices[key])
         network.network[key] = val
         network.train(dataset)
-        network.print_network()
-        logging.info('\n')
         
         elapsed_time += 1
 
@@ -66,6 +64,8 @@ def greedy(network, dataset, nn_param_choices, tolerance):
 def main():
     """Greedy approach."""
     dataset = 'cifar10'
+    generations = 10  # Number of iterations
+    tolerance = 30
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],
@@ -81,16 +81,21 @@ def main():
 
     logging.info("***Greedy approach***")
     
-    # First, get a random configuration.
-    seed_param = {}
-    for key in nn_param_choices:
-        seed_param[key] = random.choice(nn_param_choices[key])
+    for i in range(generations):
+        logging.info("***Doing generation %d of %d***" %
+                     (i + 1, generations))
+                     
+        # First, get a random configuration.
+        seed_param = {}
+        for key in nn_param_choices:
+            seed_param[key] = random.choice(nn_param_choices[key])
+            
+        seed = Network()
+        seed.create_set(seed_param)
         
-    seed = Network()
-    seed.create_set(seed_param)
-    
-    # setting the tolerance = 10; if there's no improvement on accuracy after 10 iterations, assumed that we've reached the local maximum.
-    best_network = greedy(seed, dataset, nn_param_choices, 10)
+        best_network = greedy(seed, dataset, nn_param_choices, tolerance)
+        best_network.print_network()
+        logging.info('\n')
 
 if __name__ == '__main__':
     main()
