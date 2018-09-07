@@ -63,6 +63,7 @@ def generate_network_list(nn_param_choices, population):
     networks = []
     
     for i in range(population):
+        network = {}
         for key in nn_param_choices:
             network[key] = random.choice(nn_param_choices[key])
             
@@ -78,7 +79,7 @@ def main():
     """Brute force test every network."""
     dataset = 'cifar10'
     generations = 10  # Number of iterations
-    population = 30  # Number of networks in each generation.
+    population = 20  # Number of networks in each generation.
     selected_networks = []
 
     nn_param_choices = {

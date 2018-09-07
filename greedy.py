@@ -65,7 +65,7 @@ def main():
     """Greedy approach."""
     dataset = 'cifar10'
     generations = 10  # Number of iterations
-    tolerance = 30
+    tolerance = 20
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],
