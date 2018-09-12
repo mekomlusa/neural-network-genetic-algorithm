@@ -14,6 +14,7 @@ from keras.utils import to_categorical
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from keras.regularizers import l1_l2
+import math
 
 # Helper: Early stopping.
 early_stopper = EarlyStopping(patience=5)
@@ -88,7 +89,8 @@ def compile_model(network, nb_classes, input_shape):
             if len(model.layers) == 0:
                 model.add(Conv2D(filters_per_conv, filter_size, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
                 model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
-            elif model.layers[-1].output_shape[1] / 2 > 0:
+            elif model.layers[-1].output_shape[1] > filter_size[1] and model.layers[-1].output_shape[1] > 2:
+                # valid, can subtract
                 model.add(Conv2D(filters_per_conv, filter_size, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
                 model.add(MaxPooling2D(pool_size=(2, 2)))  # hard-coded maxpooling
                         
@@ -98,6 +100,8 @@ def compile_model(network, nb_classes, input_shape):
     if hidden_layer_count > 0:
         for _ in range(hidden_layer_count):
             if len(model.layers) == 0:
+                # Need to add a flatten layer here
+                model.add(Flatten())
                 model.add(Dense(units_per_hidden, activation='relu', input_shape=input_shape, kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
             else:
                 model.add(Dense(units_per_hidden, activation='relu', kernel_regularizer=l1_l2(l1=l1_penalty,l2=l2_penalty)))
