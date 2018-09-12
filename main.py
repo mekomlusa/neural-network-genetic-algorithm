@@ -102,7 +102,7 @@ def main():
     """Evolve a network."""
     generations = 10  # Number of times to evole the population.
     population = 20  # Number of networks in each generation.
-    dataset = 'cifar10'
+    dataset = 'mnist'
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],

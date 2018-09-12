@@ -63,7 +63,7 @@ def greedy(network, dataset, nn_param_choices, tolerance):
 
 def main():
     """Greedy approach."""
-    dataset = 'cifar10'
+    dataset = 'mnist'
     generations = 10  # Number of iterations
     tolerance = 20
 

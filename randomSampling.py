@@ -77,7 +77,7 @@ def generate_network_list(nn_param_choices, population):
 
 def main():
     """Brute force test every network."""
-    dataset = 'cifar10'
+    dataset = 'mnist'
     generations = 10  # Number of iterations
     population = 20  # Number of networks in each generation.
     selected_networks = []

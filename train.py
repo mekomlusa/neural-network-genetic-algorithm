@@ -15,6 +15,7 @@ from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from keras.regularizers import l1_l2
 import math
+from keras import backend as K
 
 # Helper: Early stopping.
 early_stopper = EarlyStopping(patience=5)
@@ -44,10 +45,21 @@ def get_mnist(bs):
     # Set defaults.
     nb_classes = 10
     batch_size = bs
+    # input image dimensions
+    img_rows, img_cols = 28, 28
 
     # Get the data.
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    input_shape = x_train.shape[1:]
+    
+    if K.image_data_format() == 'channels_first':
+        x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
+        x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
+        input_shape = (1, img_rows, img_cols)
+    else:
+        x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+        x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
+        input_shape = (img_rows, img_cols, 1)
+        
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     x_train /= 255
