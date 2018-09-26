@@ -15,17 +15,21 @@ logging.basicConfig(
     filename='log.txt'
 )
 
-def train_networks(networks, dataset):
+def train_networks(networks, dataset, iteration, dataset_TB_folder_name):
     """Train each network.
 
     Args:
         networks (list): Current population of networks
         dataset (str): Dataset to use for training/evaluating
+        iteration (int): Count of the current iteration.
+        dataset_TB_folder_name (str): Name of the parent folder that holds the multiple run tensorboard result.
     """
     pbar = tqdm(total=len(networks))
+    current_network_count = 1
     for network in networks:
-        network.train(dataset)
+        network.train(dataset, iteration, current_network_count, dataset_TB_folder_name)
         pbar.update(1)
+        current_network_count += 1
     pbar.close()
 
 def get_average_accuracy(networks):
@@ -44,7 +48,7 @@ def get_average_accuracy(networks):
 
     return total_accuracy / len(networks)
 
-def generate(generations, population, nn_param_choices, dataset):
+def generate(generations, population, nn_param_choices, dataset, dataset_TB_folder_name):
     """Generate a network with the genetic algorithm.
 
     Args:
@@ -52,6 +56,7 @@ def generate(generations, population, nn_param_choices, dataset):
         population (int): Number of networks in each generation
         nn_param_choices (dict): Parameter choices for networks
         dataset (str): Dataset to use for training/evaluating
+        dataset_TB_folder_name (str): Name of the parent folder that holds the multiple run tensorboard result.
 
     """
     optimizer = Optimizer(nn_param_choices)
@@ -63,7 +68,7 @@ def generate(generations, population, nn_param_choices, dataset):
                      (i + 1, generations))
 
         # Train and get accuracy for networks.
-        train_networks(networks, dataset)
+        train_networks(networks, dataset, i, dataset_TB_folder_name)
 
         # Get the average accuracy for this generation.
         average_accuracy = get_average_accuracy(networks)
@@ -103,6 +108,7 @@ def main():
     generations = 10  # Number of times to evole the population.
     population = 20  # Number of networks in each generation.
     dataset = 'mnist'
+    dataset_TB_folder_name = dataset+"GA"
 
     nn_param_choices = {
         'batch_size':[10, 20, 30, 40, 50],
@@ -119,7 +125,7 @@ def main():
     logging.info("***Evolving %d generations with population %d***" %
                  (generations, population))
 
-    generate(generations, population, nn_param_choices, dataset)
+    generate(generations, population, nn_param_choices, dataset, dataset_TB_folder_name)
 
 if __name__ == '__main__':
     main()

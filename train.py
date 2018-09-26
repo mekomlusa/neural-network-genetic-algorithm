@@ -157,13 +157,16 @@ def train_and_score(network, dataset):
 
     return score[1]  # 1 is accuracy. 0 is loss.
 
-def train_and_score_TB(network, dataset, iteration, current_network_count):
+def train_and_score_TB(network, dataset, iteration, current_network_count, dataset_TB_folder_name):
     """Train the model, return test loss.
-    Special cases for tensorboard.
+    Special cases for tensorboard for multiple runs.
 
     Args:
         network (dict): the parameters of the network
         dataset (str): Dataset to use for training/evaluating
+        iteration (int): Count of the current iteration.
+        current_network_count (int): Count of the current network.
+        dataset_TB_folder_name (str): Name of the parent folder that holds the multiple run tensorboard result.
 
     """
     if dataset == 'cifar10':
@@ -175,7 +178,7 @@ def train_and_score_TB(network, dataset, iteration, current_network_count):
 
     model = compile_model(network, nb_classes, input_shape)
     
-    tbCallBack = TensorBoard(log_dir='./Graph/CIFAR10_RS/Run'+str(iteration)+'/Model'+str(current_network_count)+'/', histogram_freq=0, write_graph=True, write_images=True)
+    tbCallBack = TensorBoard(log_dir='./Graph/'+dataset_TB_folder_name+'/Run'+str(iteration)+'/Model'+str(current_network_count)+'/', histogram_freq=0, write_graph=True, write_images=True)
 
     model.fit(x_train, y_train,
               batch_size=batch_size,

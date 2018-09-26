@@ -15,17 +15,20 @@ logging.basicConfig(
     filename='random-log.txt'
 )
 
-def train_networks(networks, dataset, iteration):
+def train_networks(networks, dataset, iteration, dataset_TB_folder_name):
     """Train each network.
 
     Args:
         networks (list): Current population of networks
         dataset (str): Dataset to use for training/evaluating
+        iteration (int): Count of the current iteration.
+        current_network_count (int): Count of the current network.
+        dataset_TB_folder_name (str): Name of the parent folder that holds the multiple run tensorboard result.
     """
     pbar = tqdm(total=len(networks))
     current_network_count = 1
     for network in networks:
-        network.train(dataset, iteration, current_network_count)
+        network.train(dataset, iteration, current_network_count, dataset_TB_folder_name)
         network.print_network()
         pbar.update(1)
         current_network_count += 1
@@ -80,6 +83,7 @@ def generate_network_list(nn_param_choices, population):
 def main():
     """Random sampling new networks."""
     dataset = 'mnist'
+    dataset_TB_folder_name = dataset+"RS"
     generations = 10  # Number of iterations
     population = 20  # Number of networks in each generation.
     selected_networks = []
@@ -102,7 +106,7 @@ def main():
         logging.info("***Doing generation %d of %d***" %
                      (i + 1, generations))
         networks = generate_network_list(nn_param_choices, population)
-        selected_networks.extend(train_networks(networks, dataset, i))
+        selected_networks.extend(train_networks(networks, dataset, i, dataset_TB_folder_name))
     
     selected_networks = sorted(selected_networks, key=lambda x: x.accuracy, reverse=True)
     

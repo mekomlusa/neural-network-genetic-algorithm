@@ -42,15 +42,18 @@ class Network():
         """
         self.network = network
 
-    def train(self, dataset, iteration, current_network_count):
+    def train(self, dataset, iteration, current_network_count, dataset_TB_folder_name):
         """Train the network and record the accuracy.
 
         Args:
             dataset (str): Name of dataset to use.
+            iteration (int): Count of the current iteration.
+            current_network_count (int): Count of the current network.
+            dataset_TB_folder_name (str): Name of the parent folder that holds the multiple run tensorboard result.
 
         """
         if self.accuracy == 0.:
-            self.accuracy = train_and_score_TB(self.network, dataset, iteration, current_network_count)
+            self.accuracy = train_and_score_TB(self.network, dataset, iteration, current_network_count, dataset_TB_folder_name)
 
     def print_network(self):
         """Print out a network."""
