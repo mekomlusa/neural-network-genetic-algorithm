@@ -15,7 +15,7 @@ logging.basicConfig(
     filename='random-log.txt'
 )
 
-def train_networks(networks, dataset):
+def train_networks(networks, dataset, iteration):
     """Train each network.
 
     Args:
@@ -23,10 +23,12 @@ def train_networks(networks, dataset):
         dataset (str): Dataset to use for training/evaluating
     """
     pbar = tqdm(total=len(networks))
+    current_network_count = 1
     for network in networks:
-        network.train(dataset)
+        network.train(dataset, iteration, current_network_count)
         network.print_network()
         pbar.update(1)
+        current_network_count += 1
     pbar.close()
 
     # Sort our final population.
@@ -76,7 +78,7 @@ def generate_network_list(nn_param_choices, population):
     return networks
 
 def main():
-    """Brute force test every network."""
+    """Random sampling new networks."""
     dataset = 'mnist'
     generations = 10  # Number of iterations
     population = 20  # Number of networks in each generation.
@@ -100,7 +102,7 @@ def main():
         logging.info("***Doing generation %d of %d***" %
                      (i + 1, generations))
         networks = generate_network_list(nn_param_choices, population)
-        selected_networks.extend(train_networks(networks, dataset))
+        selected_networks.extend(train_networks(networks, dataset, i))
     
     selected_networks = sorted(selected_networks, key=lambda x: x.accuracy, reverse=True)
     

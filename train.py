@@ -11,7 +11,7 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 #from keras.utils.np_utils import to_categorical
 from keras.utils import to_categorical
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, TensorBoard
 from keras.optimizers import SGD
 from keras.regularizers import l1_l2
 import math
@@ -143,13 +143,46 @@ def train_and_score(network, dataset):
             x_test, y_train, y_test = get_mnist(network['batch_size'])
 
     model = compile_model(network, nb_classes, input_shape)
+    
+    tbCallBack = TensorBoard(log_dir='./Graph/CIFAR10_RS', histogram_freq=0, write_graph=True, write_images=True)
 
     model.fit(x_train, y_train,
               batch_size=batch_size,
               epochs=50,  # per paper
               verbose=0,
               validation_data=(x_test, y_test),
-              callbacks=[early_stopper])
+              callbacks=[early_stopper, tbCallBack])
+
+    score = model.evaluate(x_test, y_test, verbose=0)
+
+    return score[1]  # 1 is accuracy. 0 is loss.
+
+def train_and_score_TB(network, dataset, iteration, current_network_count):
+    """Train the model, return test loss.
+    Special cases for tensorboard.
+
+    Args:
+        network (dict): the parameters of the network
+        dataset (str): Dataset to use for training/evaluating
+
+    """
+    if dataset == 'cifar10':
+        nb_classes, batch_size, input_shape, x_train, \
+            x_test, y_train, y_test = get_cifar10(network['batch_size'])
+    elif dataset == 'mnist':
+        nb_classes, batch_size, input_shape, x_train, \
+            x_test, y_train, y_test = get_mnist(network['batch_size'])
+
+    model = compile_model(network, nb_classes, input_shape)
+    
+    tbCallBack = TensorBoard(log_dir='./Graph/CIFAR10_RS/Run'+str(iteration)+'/Model'+str(current_network_count)+'/', histogram_freq=0, write_graph=True, write_images=True)
+
+    model.fit(x_train, y_train,
+              batch_size=batch_size,
+              epochs=50,  # per paper
+              verbose=0,
+              validation_data=(x_test, y_test),
+              callbacks=[early_stopper, tbCallBack])
 
     score = model.evaluate(x_test, y_test, verbose=0)
 
